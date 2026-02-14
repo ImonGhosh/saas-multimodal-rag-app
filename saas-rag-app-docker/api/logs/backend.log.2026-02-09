@@ -1,0 +1,62 @@
+2026-02-09 12:45:20,251 | INFO | api.file_data_ingestion.chunker | Initializing tokenizer: sentence-transformers/all-MiniLM-L6-v2
+2026-02-09 12:45:21,523 | INFO | api.file_data_ingestion.chunker | HybridChunker initialized (max_tokens=512)
+2026-02-09 12:45:21,523 | INFO | api.file_data_ingestion.ingest | Initializing ingestion pipeline...
+2026-02-09 12:45:22,681 | INFO | api.utils.db_utils | Database connection pool initialized
+2026-02-09 12:45:22,682 | INFO | api.file_data_ingestion.ingest | Ingestion pipeline initialized
+2026-02-09 12:45:22,684 | INFO | api.file_data_ingestion.ingest | Found 1 document files to process
+2026-02-09 12:45:22,686 | INFO | api.file_data_ingestion.ingest | Processing file 1/1: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\team-handbook.md
+2026-02-09 12:45:22,692 | INFO | api.file_data_ingestion.ingest | Processing document: NeuralFlow AI - Team Handbook
+2026-02-09 12:45:22,693 | WARNING | api.file_data_ingestion.chunker | No DoclingDocument provided, using simple chunking fallback
+2026-02-09 12:45:22,727 | INFO | api.file_data_ingestion.chunker | Created 8 chunks using simple fallback
+2026-02-09 12:45:22,728 | INFO | api.file_data_ingestion.ingest | Created 8 chunks
+2026-02-09 12:45:22,729 | INFO | api.file_data_ingestion.embedder | Generating embeddings for 8 chunks
+2026-02-09 12:45:28,227 | INFO | httpx | HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2026-02-09 12:45:28,253 | INFO | api.file_data_ingestion.embedder | Processed batch 1/1
+2026-02-09 12:45:28,254 | INFO | api.file_data_ingestion.embedder | Generated embeddings for 8 chunks
+2026-02-09 12:45:28,254 | INFO | api.file_data_ingestion.ingest | Generated embeddings for 8 chunks
+2026-02-09 12:45:30,056 | INFO | api.file_data_ingestion.ingest | Saved document to PostgreSQL with ID: 6d8c3dd9-234d-435a-8d70-1367ab46ceb0
+2026-02-09 12:45:30,059 | INFO | api.file_data_ingestion.ingest | Ingestion complete: 1 documents, 8 chunks, 0 errors
+2026-02-09 12:45:30,060 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-09 12:45:30,060 | INFO | api.file_data_ingestion.ingest | INGESTION SUMMARY
+2026-02-09 12:45:30,061 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-09 12:45:30,061 | INFO | api.file_data_ingestion.ingest | Documents processed: 1
+2026-02-09 12:45:30,062 | INFO | api.file_data_ingestion.ingest | Document titles: ['NeuralFlow AI - Team Handbook']
+2026-02-09 12:45:30,062 | INFO | api.file_data_ingestion.ingest | Total chunks created: 8
+2026-02-09 12:45:30,063 | INFO | api.file_data_ingestion.ingest | Total errors: 0
+2026-02-09 12:45:30,064 | INFO | api.file_data_ingestion.ingest | Total processing time: 8.54 seconds
+2026-02-09 12:45:30,064 | INFO | api.file_data_ingestion.ingest | ✓ NeuralFlow AI - Team Handbook: 8 chunks
+2026-02-09 12:45:30,161 | INFO | api.utils.db_utils | Database connection pool closed
+2026-02-09 12:47:01,188 | INFO | httpx | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-09 12:47:02,056 | INFO | api.rag_agent | Database connection pool initialized
+2026-02-09 12:47:02,243 | INFO | httpx | HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2026-02-09 12:47:05,284 | INFO | httpx | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-09 12:47:05,326 | INFO | api.index | Tools used for run: search_knowledge_base
+2026-02-09 17:13:51,668 | INFO | api.rag_agent | Database connection pool initialized
+2026-02-09 17:13:56,399 | INFO | api.index | Tools used for run: search_knowledge_base
+2026-02-09 19:00:17,408 | INFO | api.file_data_ingestion.chunker | Initializing tokenizer: sentence-transformers/all-MiniLM-L6-v2
+2026-02-09 19:00:18,667 | INFO | api.file_data_ingestion.chunker | HybridChunker initialized (max_tokens=512)
+2026-02-09 19:00:20,098 | INFO | api.file_data_ingestion.ingest | Initializing ingestion pipeline...
+2026-02-09 19:00:21,094 | INFO | api.utils.db_utils | Database connection pool initialized
+2026-02-09 19:00:21,094 | INFO | api.file_data_ingestion.ingest | Ingestion pipeline initialized
+2026-02-09 19:00:21,094 | INFO | api.file_data_ingestion.ingest | Found 1 document files to process
+2026-02-09 19:00:21,095 | INFO | api.file_data_ingestion.ingest | Processing file 1/1: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\mission-and-goals.md
+2026-02-09 19:00:21,103 | INFO | api.file_data_ingestion.ingest | Processing document: NeuralFlow AI - Mission and Goals
+2026-02-09 19:00:21,107 | WARNING | api.file_data_ingestion.chunker | No DoclingDocument provided, using simple chunking fallback
+2026-02-09 19:00:21,134 | INFO | api.file_data_ingestion.chunker | Created 9 chunks using simple fallback
+2026-02-09 19:00:21,137 | INFO | api.file_data_ingestion.ingest | Created 9 chunks
+2026-02-09 19:00:21,140 | INFO | api.file_data_ingestion.embedder | Generating embeddings for 9 chunks
+2026-02-09 19:00:24,067 | INFO | api.file_data_ingestion.embedder | Processed batch 1/1
+2026-02-09 19:00:24,068 | INFO | api.file_data_ingestion.embedder | Generated embeddings for 9 chunks
+2026-02-09 19:00:24,068 | INFO | api.file_data_ingestion.ingest | Generated embeddings for 9 chunks
+2026-02-09 19:00:25,549 | INFO | api.file_data_ingestion.ingest | Saved document to PostgreSQL with ID: 137f356c-b262-4094-a79c-46634831f8b4
+2026-02-09 19:00:25,554 | INFO | api.file_data_ingestion.ingest | Ingestion complete: 1 documents, 9 chunks, 0 errors
+2026-02-09 19:00:25,555 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-09 19:00:25,556 | INFO | api.file_data_ingestion.ingest | INGESTION SUMMARY
+2026-02-09 19:00:25,558 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-09 19:00:25,559 | INFO | api.file_data_ingestion.ingest | Documents processed: 1
+2026-02-09 19:00:25,559 | INFO | api.file_data_ingestion.ingest | Document titles: ['NeuralFlow AI - Mission and Goals']
+2026-02-09 19:00:25,560 | INFO | api.file_data_ingestion.ingest | Total chunks created: 9
+2026-02-09 19:00:25,560 | INFO | api.file_data_ingestion.ingest | Total errors: 0
+2026-02-09 19:00:25,560 | INFO | api.file_data_ingestion.ingest | Total processing time: 5.46 seconds
+2026-02-09 19:00:25,561 | INFO | api.file_data_ingestion.ingest | ✓ NeuralFlow AI - Mission and Goals: 9 chunks
+2026-02-09 19:00:25,657 | INFO | api.utils.db_utils | Database connection pool closed

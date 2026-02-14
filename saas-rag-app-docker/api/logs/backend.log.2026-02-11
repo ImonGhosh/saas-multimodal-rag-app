@@ -1,0 +1,119 @@
+2026-02-11 00:51:11,993 | INFO | api.file_data_ingestion.chunker | Initializing tokenizer: sentence-transformers/all-MiniLM-L6-v2
+2026-02-11 00:51:13,103 | INFO | api.file_data_ingestion.chunker | HybridChunker initialized (max_tokens=512)
+2026-02-11 00:51:13,948 | INFO | api.file_data_ingestion.ingest | Initializing ingestion pipeline...
+2026-02-11 00:51:15,233 | INFO | api.utils.db_utils | Database connection pool initialized
+2026-02-11 00:51:15,233 | INFO | api.file_data_ingestion.ingest | Ingestion pipeline initialized
+2026-02-11 00:51:15,233 | INFO | api.file_data_ingestion.ingest | Found 1 document files to process
+2026-02-11 00:51:15,233 | INFO | api.file_data_ingestion.ingest | Processing file 1/1: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:51:16,460 | INFO | api.file_data_ingestion.ingest | Transcribing audio file using Whisper Turbo: Recording1.mp3
+2026-02-11 00:51:16,460 | INFO | api.file_data_ingestion.ingest | Audio file absolute path: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:51:16,483 | INFO | docling.datamodel.document | detected formats: [<InputFormat.AUDIO: 'audio'>]
+2026-02-11 00:51:16,484 | INFO | docling.document_converter | Going to convert document batch...
+2026-02-11 00:51:16,485 | INFO | docling.document_converter | Initializing pipeline for AsrPipeline with options hash 56c2b01f576cf4ca74241045cb5b4bbb
+2026-02-11 00:51:16,485 | INFO | docling.pipeline.asr_pipeline | artifacts-path: None
+2026-02-11 00:51:16,485 | INFO | docling.pipeline.asr_pipeline | accelerator_options: num_threads=4 device='auto' cuda_use_flash_attention2=False
+2026-02-11 00:51:16,645 | INFO | docling.utils.accelerator_utils | Accelerator device: 'cuda:0'
+2026-02-11 00:51:16,645 | INFO | docling.pipeline.asr_pipeline | Available device for Whisper: cuda:0
+2026-02-11 00:51:16,645 | INFO | docling.pipeline.asr_pipeline | loading _NativeWhisperModel(turbo)
+2026-02-11 00:51:22,474 | INFO | docling.pipeline.base_pipeline | Processing document Recording1.mp3
+2026-02-11 00:51:22,475 | INFO | docling.pipeline.asr_pipeline | start _build_document in AsrPipeline: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:51:26,717 | INFO | docling.document_converter | Finished converting document Recording1.mp3 in 10.25 sec.
+2026-02-11 00:51:26,719 | INFO | api.file_data_ingestion.ingest | Successfully transcribed Recording1.mp3
+2026-02-11 00:51:26,721 | INFO | api.file_data_ingestion.ingest | Saved transcribed markdown: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1-converted.md
+2026-02-11 00:51:26,722 | INFO | api.file_data_ingestion.ingest | Text for create title:  Welcome to Neuroflow AI, where we're transforming how businesses work through intelligent automation.
+
+ Founded in 2023, we specialize in practical AI solutions that deliver measurable results.
+
+ Our team of 47 AI engineers work with enterprise clients across financial services, healthcare, and legal sectors.
+
+ We don't just build AI systems.
+
+ We partner with our clients to understand their unique challenges and create solutions that integrate seamlessly into their workflows.
+2026-02-11 00:51:27,649 | INFO | api.file_data_ingestion.ingest | Response for create title: {'title': 'Transforming Business with AI Solutions'}
+2026-02-11 00:51:27,650 | INFO | api.file_data_ingestion.ingest | Processing document: Transforming Business with AI Solutions
+2026-02-11 00:51:27,651 | WARNING | api.file_data_ingestion.ingest | No chunks created for Transforming Business with AI Solutions
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | Ingestion complete: 1 documents, 0 chunks, 1 errors
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | INGESTION SUMMARY
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | Documents processed: 1
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | Document titles: ['Transforming Business with AI Solutions']
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | Total chunks created: 0
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | Total errors: 1
+2026-02-11 00:51:27,652 | INFO | api.file_data_ingestion.ingest | Total processing time: 13.70 seconds
+2026-02-11 00:51:27,654 | INFO | api.file_data_ingestion.ingest | ✗ Transforming Business with AI Solutions: 0 chunks
+2026-02-11 00:51:27,654 | WARNING | api.file_data_ingestion.ingest | Error: No chunks created
+2026-02-11 00:51:27,726 | INFO | api.utils.db_utils | Database connection pool closed
+2026-02-11 00:54:00,790 | INFO | api.file_data_ingestion.chunker | Initializing tokenizer: sentence-transformers/all-MiniLM-L6-v2
+2026-02-11 00:54:01,934 | INFO | api.file_data_ingestion.chunker | HybridChunker initialized (max_tokens=512)
+2026-02-11 00:54:03,212 | INFO | api.file_data_ingestion.ingest | Initializing ingestion pipeline...
+2026-02-11 00:54:04,349 | INFO | api.utils.db_utils | Database connection pool initialized
+2026-02-11 00:54:04,358 | INFO | api.file_data_ingestion.ingest | Ingestion pipeline initialized
+2026-02-11 00:54:04,359 | INFO | api.file_data_ingestion.ingest | Found 1 document files to process
+2026-02-11 00:54:04,359 | INFO | api.file_data_ingestion.ingest | Processing file 1/1: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:54:07,210 | INFO | api.file_data_ingestion.ingest | Transcribing audio file using Whisper Turbo: Recording1.mp3
+2026-02-11 00:54:07,211 | INFO | api.file_data_ingestion.ingest | Audio file absolute path: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:54:07,235 | INFO | docling.datamodel.document | detected formats: [<InputFormat.AUDIO: 'audio'>]
+2026-02-11 00:54:07,259 | INFO | docling.document_converter | Going to convert document batch...
+2026-02-11 00:54:07,261 | INFO | docling.document_converter | Initializing pipeline for AsrPipeline with options hash 56c2b01f576cf4ca74241045cb5b4bbb
+2026-02-11 00:54:07,262 | INFO | docling.pipeline.asr_pipeline | artifacts-path: None
+2026-02-11 00:54:07,262 | INFO | docling.pipeline.asr_pipeline | accelerator_options: num_threads=4 device='auto' cuda_use_flash_attention2=False
+2026-02-11 00:54:07,608 | INFO | docling.utils.accelerator_utils | Accelerator device: 'cuda:0'
+2026-02-11 00:54:07,609 | INFO | docling.pipeline.asr_pipeline | Available device for Whisper: cuda:0
+2026-02-11 00:54:07,610 | INFO | docling.pipeline.asr_pipeline | loading _NativeWhisperModel(turbo)
+2026-02-11 00:54:18,526 | INFO | docling.pipeline.base_pipeline | Processing document Recording1.mp3
+2026-02-11 00:54:18,527 | INFO | docling.pipeline.asr_pipeline | start _build_document in AsrPipeline: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:54:27,548 | INFO | docling.document_converter | Finished converting document Recording1.mp3 in 20.33 sec.
+2026-02-11 00:54:27,551 | INFO | api.file_data_ingestion.ingest | Successfully transcribed Recording1.mp3
+2026-02-11 00:54:27,553 | INFO | api.file_data_ingestion.ingest | Saved transcribed markdown: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1-converted.md
+2026-02-11 00:54:27,554 | INFO | api.file_data_ingestion.ingest | Text for create title:  Welcome to Neuroflow AI, where we're transforming how businesses work through intelligent automation.
+
+ Founded in 2023, we specialize in practical AI solutions that deliver measurable results.
+
+ Our team of 47 AI engineers work with enterprise clients across financial services, healthcare, and legal sectors.
+
+ We don't just build AI systems.
+
+ We partner with our clients to understand their unique challenges and create solutions that integrate seamlessly into their workflows.
+2026-02-11 00:54:28,799 | INFO | api.file_data_ingestion.ingest | Response for create title: {'title': 'Intelligent Automation Solutions'}
+2026-02-11 00:54:28,803 | INFO | api.file_data_ingestion.ingest | Processing document: Intelligent Automation Solutions
+2026-02-11 00:54:28,808 | WARNING | api.file_data_ingestion.chunker | No DoclingDocument provided, using simple chunking fallback
+2026-02-11 00:54:28,844 | INFO | api.file_data_ingestion.chunker | Created 1 chunks using simple fallback
+2026-02-11 00:54:28,846 | INFO | api.file_data_ingestion.ingest | Created 1 chunks
+2026-02-11 00:54:28,848 | INFO | api.file_data_ingestion.embedder | Generating embeddings for 1 chunks
+2026-02-11 00:54:31,463 | INFO | api.file_data_ingestion.embedder | Processed batch 1/1
+2026-02-11 00:54:31,465 | INFO | api.file_data_ingestion.embedder | Generated embeddings for 1 chunks
+2026-02-11 00:54:31,465 | INFO | api.file_data_ingestion.ingest | Generated embeddings for 1 chunks
+2026-02-11 00:54:32,148 | INFO | api.file_data_ingestion.ingest | Saved document to PostgreSQL with ID: 8a796442-e732-4653-b996-758fa07b7d7d
+2026-02-11 00:54:32,149 | INFO | api.file_data_ingestion.ingest | Ingestion complete: 1 documents, 1 chunks, 0 errors
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | INGESTION SUMMARY
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | Documents processed: 1
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | Document titles: ['Intelligent Automation Solutions']
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | Total chunks created: 1
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | Total errors: 0
+2026-02-11 00:54:32,150 | INFO | api.file_data_ingestion.ingest | Total processing time: 28.94 seconds
+2026-02-11 00:54:32,151 | INFO | api.file_data_ingestion.ingest | ✓ Intelligent Automation Solutions: 1 chunks
+2026-02-11 00:54:32,203 | INFO | api.utils.db_utils | Database connection pool closed
+2026-02-11 00:56:33,252 | INFO | api.file_data_ingestion.chunker | Initializing tokenizer: sentence-transformers/all-MiniLM-L6-v2
+2026-02-11 00:56:34,368 | INFO | api.file_data_ingestion.chunker | HybridChunker initialized (max_tokens=512)
+2026-02-11 00:56:35,591 | INFO | api.file_data_ingestion.ingest | Initializing ingestion pipeline...
+2026-02-11 00:56:36,624 | INFO | api.utils.db_utils | Database connection pool initialized
+2026-02-11 00:56:36,624 | INFO | api.file_data_ingestion.ingest | Ingestion pipeline initialized
+2026-02-11 00:56:36,625 | INFO | api.file_data_ingestion.ingest | Found 1 document files to process
+2026-02-11 00:56:36,625 | INFO | api.file_data_ingestion.ingest | Processing file 1/1: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\team-handbook.md
+2026-02-11 00:56:36,652 | INFO | api.file_data_ingestion.ingest | Processing document: NeuralFlow AI - Team Handbook
+2026-02-11 00:56:36,657 | WARNING | api.file_data_ingestion.ingest | No chunks created for NeuralFlow AI - Team Handbook
+2026-02-11 00:56:36,660 | INFO | api.file_data_ingestion.ingest | Ingestion complete: 1 documents, 0 chunks, 1 errors
+2026-02-11 00:56:36,661 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:56:36,665 | INFO | api.file_data_ingestion.ingest | INGESTION SUMMARY
+2026-02-11 00:56:36,665 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:56:36,666 | INFO | api.file_data_ingestion.ingest | Documents processed: 1
+2026-02-11 00:56:36,666 | INFO | api.file_data_ingestion.ingest | Document titles: ['NeuralFlow AI - Team Handbook']
+2026-02-11 00:56:36,667 | INFO | api.file_data_ingestion.ingest | Total chunks created: 0
+2026-02-11 00:56:36,667 | INFO | api.file_data_ingestion.ingest | Total errors: 1
+2026-02-11 00:56:36,668 | INFO | api.file_data_ingestion.ingest | Total processing time: 1.07 seconds
+2026-02-11 00:56:36,669 | INFO | api.file_data_ingestion.ingest | ✗ NeuralFlow AI - Team Handbook: 0 chunks
+2026-02-11 00:56:36,669 | WARNING | api.file_data_ingestion.ingest | Error: No chunks created
+2026-02-11 00:56:36,719 | INFO | api.utils.db_utils | Database connection pool closed

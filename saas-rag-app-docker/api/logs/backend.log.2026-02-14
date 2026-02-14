@@ -1,0 +1,2 @@
+2026-02-14 19:29:51,751 | INFO | api.rag_agent | Database connection pool initialized
+2026-02-14 19:29:59,271 | INFO | api.index | Tools used for run: search_knowledge_base

@@ -1,0 +1,96 @@
+# =========================
+# Core API
+# =========================
+fastapi>=0.126,<1           # modern FastAPI (Pydantic v2 era)  :contentReference[oaicite:5]{index=5}
+uvicorn[standard]>=0.39,<0.41
+python-dotenv>=1.0.1,<2
+aiofiles>=24.1,<25
+httpx>=0.28.1,<0.29         # keeps Mistral + others compatible  :contentReference[oaicite:6]{index=6}
+
+# =========================
+# LLM / Agents
+# =========================
+openai>=2.8.0,<3 
+anthropic>=0.61,<1
+groq>=0.25,<1
+mistralai>=1.9,<2
+pydantic-ai==0.7.4          # keep ONE: don't install pydantic-ai-slim separately
+litellm>=1.81.6,<2          # current active series on PyPI  :contentReference[oaicite:7]{index=7}
+tiktoken>=0.8,<1
+
+# =========================
+# LangChain
+# =========================
+langchain>=1.2.7,<2  
+langchain-openai>=1.1.7,<2
+
+# =========================
+# Supabase / Postgres
+# =========================
+supabase>=2.11,<3
+asyncpg>=0.30,<1
+
+# =========================
+# Crawling / Parsing / Docs
+# =========================
+Crawl4AI==0.4.247
+# playwright>=1.49,<2
+playwright>=1.49,<2
+tf-playwright-stealth==1.1.0
+beautifulsoup4>=4.12,<5
+lxml>=5.3,<6
+requests>=2.32,<3
+
+# =========================
+# Data / Viz (keep only if you use them)
+# =========================
+pandas>=2.2,<3
+numpy>=2.2,<3
+pyarrow>=18.1,<19
+pillow>=10.4,<11
+streamlit>=1.41,<2
+altair>=5.5,<6
+pydeck>=0.9,<1
+tqdm>=4.67,<5
+
+
+# =========================
+# Document AI / Speech (heavy deps)
+# =========================
+docling[vlm]>=2.55.0
+openai-whisper>=20250625
+
+# =========================
+# Observability (optional)
+# =========================
+logfire>=3.14,<4
+opentelemetry-exporter-otlp
+
+
+hf_xet
+
+# =========================
+# Observability
+# =========================
+langfuse>=2,<3
+
+# =========================
+# Clerk Authentication Library
+# =========================
+fastapi-clerk-auth
+
+# =========================
+# Testing (dev-only; move to requirements-dev.txt if possible)
+# =========================
+# pytest>=8.3,<9
+# mockito>=1.5,<2
+# pytest-mockito>=0.0.4,<0.1
+
+# =========================
+# Evaluation
+# =========================
+# deepeval
+
+# Additional commands to run
+# --- For docling vision model ----
+# python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118

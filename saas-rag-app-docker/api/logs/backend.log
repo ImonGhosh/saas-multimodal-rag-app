@@ -1,0 +1,70 @@
+2026-02-11 00:08:51,741 | INFO | api.file_data_ingestion.chunker | Initializing tokenizer: sentence-transformers/all-MiniLM-L6-v2
+2026-02-11 00:08:52,930 | INFO | api.file_data_ingestion.chunker | HybridChunker initialized (max_tokens=512)
+2026-02-11 00:08:54,083 | INFO | api.file_data_ingestion.ingest | Initializing ingestion pipeline...
+2026-02-11 00:08:55,262 | INFO | api.utils.db_utils | Database connection pool initialized
+2026-02-11 00:08:55,264 | INFO | api.file_data_ingestion.ingest | Ingestion pipeline initialized
+2026-02-11 00:08:55,266 | INFO | api.file_data_ingestion.ingest | Found 1 document files to process
+2026-02-11 00:08:55,266 | INFO | api.file_data_ingestion.ingest | Processing file 1/1: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:08:57,873 | INFO | api.file_data_ingestion.ingest | Transcribing audio file using Whisper Turbo: Recording1.mp3
+2026-02-11 00:08:57,875 | INFO | api.file_data_ingestion.ingest | Audio file absolute path: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:08:57,917 | INFO | docling.datamodel.document | detected formats: [<InputFormat.AUDIO: 'audio'>]
+2026-02-11 00:08:57,919 | INFO | docling.document_converter | Going to convert document batch...
+2026-02-11 00:08:57,920 | INFO | docling.document_converter | Initializing pipeline for AsrPipeline with options hash 56c2b01f576cf4ca74241045cb5b4bbb
+2026-02-11 00:08:57,920 | INFO | docling.pipeline.asr_pipeline | artifacts-path: None
+2026-02-11 00:08:57,921 | INFO | docling.pipeline.asr_pipeline | accelerator_options: num_threads=4 device='auto' cuda_use_flash_attention2=False
+2026-02-11 00:08:58,357 | INFO | docling.utils.accelerator_utils | Accelerator device: 'cuda:0'
+2026-02-11 00:08:58,359 | INFO | docling.pipeline.asr_pipeline | Available device for Whisper: cuda:0
+2026-02-11 00:08:58,359 | INFO | docling.pipeline.asr_pipeline | loading _NativeWhisperModel(turbo)
+2026-02-11 00:09:05,952 | INFO | docling.pipeline.base_pipeline | Processing document Recording1.mp3
+2026-02-11 00:09:05,952 | INFO | docling.pipeline.asr_pipeline | start _build_document in AsrPipeline: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:09:12,133 | INFO | docling.document_converter | Finished converting document Recording1.mp3 in 14.25 sec.
+2026-02-11 00:09:12,136 | INFO | api.file_data_ingestion.ingest | Successfully transcribed Recording1.mp3
+2026-02-11 00:09:12,139 | INFO | api.file_data_ingestion.ingest | Saved transcribed markdown: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1-converted.md
+2026-02-11 00:09:12,139 | ERROR | api.file_data_ingestion.ingest | Failed to process C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3: expected string or bytes-like object, got 'list'
+2026-02-11 00:09:12,140 | INFO | api.file_data_ingestion.ingest | Ingestion complete: 1 documents, 0 chunks, 1 errors
+2026-02-11 00:09:12,141 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:09:12,141 | INFO | api.file_data_ingestion.ingest | INGESTION SUMMARY
+2026-02-11 00:09:12,141 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:09:12,141 | INFO | api.file_data_ingestion.ingest | Documents processed: 1
+2026-02-11 00:09:12,142 | INFO | api.file_data_ingestion.ingest | Document titles: ['Recording1.mp3']
+2026-02-11 00:09:12,142 | INFO | api.file_data_ingestion.ingest | Total chunks created: 0
+2026-02-11 00:09:12,142 | INFO | api.file_data_ingestion.ingest | Total errors: 1
+2026-02-11 00:09:12,142 | INFO | api.file_data_ingestion.ingest | Total processing time: 18.06 seconds
+2026-02-11 00:09:12,143 | INFO | api.file_data_ingestion.ingest | ✗ Recording1.mp3: 0 chunks
+2026-02-11 00:09:12,143 | WARNING | api.file_data_ingestion.ingest | Error: expected string or bytes-like object, got 'list'
+2026-02-11 00:09:12,209 | INFO | api.utils.db_utils | Database connection pool closed
+2026-02-11 00:11:25,260 | INFO | api.file_data_ingestion.chunker | Initializing tokenizer: sentence-transformers/all-MiniLM-L6-v2
+2026-02-11 00:11:26,318 | INFO | api.file_data_ingestion.chunker | HybridChunker initialized (max_tokens=512)
+2026-02-11 00:11:27,428 | INFO | api.file_data_ingestion.ingest | Initializing ingestion pipeline...
+2026-02-11 00:11:28,296 | INFO | api.utils.db_utils | Database connection pool initialized
+2026-02-11 00:11:28,298 | INFO | api.file_data_ingestion.ingest | Ingestion pipeline initialized
+2026-02-11 00:11:28,298 | INFO | api.file_data_ingestion.ingest | Found 1 document files to process
+2026-02-11 00:11:28,298 | INFO | api.file_data_ingestion.ingest | Processing file 1/1: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:11:29,700 | INFO | api.file_data_ingestion.ingest | Transcribing audio file using Whisper Turbo: Recording1.mp3
+2026-02-11 00:11:29,701 | INFO | api.file_data_ingestion.ingest | Audio file absolute path: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:11:29,725 | INFO | docling.datamodel.document | detected formats: [<InputFormat.AUDIO: 'audio'>]
+2026-02-11 00:11:29,726 | INFO | docling.document_converter | Going to convert document batch...
+2026-02-11 00:11:29,726 | INFO | docling.document_converter | Initializing pipeline for AsrPipeline with options hash 56c2b01f576cf4ca74241045cb5b4bbb
+2026-02-11 00:11:29,726 | INFO | docling.pipeline.asr_pipeline | artifacts-path: None
+2026-02-11 00:11:29,726 | INFO | docling.pipeline.asr_pipeline | accelerator_options: num_threads=4 device='auto' cuda_use_flash_attention2=False
+2026-02-11 00:11:29,956 | INFO | docling.utils.accelerator_utils | Accelerator device: 'cuda:0'
+2026-02-11 00:11:29,957 | INFO | docling.pipeline.asr_pipeline | Available device for Whisper: cuda:0
+2026-02-11 00:11:29,957 | INFO | docling.pipeline.asr_pipeline | loading _NativeWhisperModel(turbo)
+2026-02-11 00:11:35,907 | INFO | docling.pipeline.base_pipeline | Processing document Recording1.mp3
+2026-02-11 00:11:35,907 | INFO | docling.pipeline.asr_pipeline | start _build_document in AsrPipeline: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3
+2026-02-11 00:11:40,051 | INFO | docling.document_converter | Finished converting document Recording1.mp3 in 10.34 sec.
+2026-02-11 00:11:40,052 | INFO | api.file_data_ingestion.ingest | Successfully transcribed Recording1.mp3
+2026-02-11 00:11:40,053 | INFO | api.file_data_ingestion.ingest | Saved transcribed markdown: C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1-converted.md
+2026-02-11 00:11:40,054 | ERROR | api.file_data_ingestion.ingest | Failed to process C:\IMON\Masters\Self-Learning\saas-rag-app\api\documents\Recording1.mp3: expected string or bytes-like object, got 'list'
+2026-02-11 00:11:40,055 | INFO | api.file_data_ingestion.ingest | Ingestion complete: 1 documents, 0 chunks, 1 errors
+2026-02-11 00:11:40,056 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:11:40,056 | INFO | api.file_data_ingestion.ingest | INGESTION SUMMARY
+2026-02-11 00:11:40,056 | INFO | api.file_data_ingestion.ingest | ==================================================
+2026-02-11 00:11:40,057 | INFO | api.file_data_ingestion.ingest | Documents processed: 1
+2026-02-11 00:11:40,057 | INFO | api.file_data_ingestion.ingest | Document titles: ['Recording1.mp3']
+2026-02-11 00:11:40,057 | INFO | api.file_data_ingestion.ingest | Total chunks created: 0
+2026-02-11 00:11:40,057 | INFO | api.file_data_ingestion.ingest | Total errors: 1
+2026-02-11 00:11:40,057 | INFO | api.file_data_ingestion.ingest | Total processing time: 12.63 seconds
+2026-02-11 00:11:40,058 | INFO | api.file_data_ingestion.ingest | ✗ Recording1.mp3: 0 chunks
+2026-02-11 00:11:40,058 | WARNING | api.file_data_ingestion.ingest | Error: expected string or bytes-like object, got 'list'
+2026-02-11 00:11:40,129 | INFO | api.utils.db_utils | Database connection pool closed
