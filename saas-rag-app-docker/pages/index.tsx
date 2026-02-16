@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { SignInButton, SignedIn, SignedOut, UserButton, useAuth } from '@clerk/nextjs';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from "remark-gfm";
@@ -58,9 +58,20 @@ export default function Home() {
     const [ingestionError, setIngestionError] = useState<string>('');
     const [isIngesting, setIsIngesting] = useState<boolean>(false);
     const [fileInputKey, setFileInputKey] = useState<number>(0);
-    const [isImageEnabled, setIsImageEnabled] = useState<boolean>(false);
+    const [isImageEnabled] = useState<boolean>(false);
 
     const maxFileSizeBytes = 5 * 1024 * 1024;
+
+    const wallpaperDark: CSSProperties = {
+        backgroundColor: '#0f172a',
+        backgroundImage: [
+            'linear-gradient(135deg, #0f172a 0%, #1e293b 42%, #0b3a4a 100%)',
+            'radial-gradient(1200px 720px at 18% -8%, rgba(56,189,248,0.22), transparent 62%)',
+            'radial-gradient(1000px 700px at 110% 18%, rgba(20,184,166,0.22), transparent 58%)',
+            'radial-gradient(900px 600px at 55% 110%, rgba(148,163,184,0.18), transparent 60%)',
+        ].join(', '),
+        backgroundSize: 'cover',
+    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -266,7 +277,10 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen px-6 pt-24 pb-10 font-sans flex flex-col items-center justify-center gap-6 bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <main className="relative min-h-screen overflow-hidden px-6 pt-24 pb-10 font-sans flex flex-col items-center justify-center gap-6 text-slate-100">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+                <div className="absolute inset-0" style={wallpaperDark} />
+            </div>
             <nav className="fixed top-0 left-0 right-0 z-20 bg-gradient-to-r from-emerald-800 via-green-700 to-emerald-600 shadow-md">
                 <div className="w-full flex items-center justify-end px-6 py-3">
                     <SignedOut>
@@ -282,7 +296,7 @@ export default function Home() {
                 </div>
             </nav>
             <h1
-                className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100"
+                className="text-3xl font-bold text-center text-slate-100"
                 style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
             >
                 Personal RAG Agent
@@ -399,10 +413,11 @@ export default function Home() {
                         <input
                             type="checkbox"
                             checked={isImageEnabled}
-                            onChange={(event) => setIsImageEnabled(event.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
+                            readOnly
+                            disabled
+                            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 disabled:cursor-not-allowed disabled:opacity-60"
                         />
-                        Enable image extraction for pdf files (This will increase the ingestion time)
+                        Enable image extraction for PDF files (This feature will be available soon)
                     </label>
                 )}
             </form>
@@ -410,14 +425,14 @@ export default function Home() {
 
             <section className="w-full max-w-2xl text-center">
                 <p
-                    className="text-base text-gray-700 dark:text-gray-300"
+                    className="text-base text-slate-300"
                     style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
                 >
                     Turn any website or document into expert knowledge and chat with it using natural language.
                 </p>
 
                 <div
-                    className="mt-6 text-xs text-gray-600 dark:text-gray-400"
+                    className="mt-6 text-xs text-slate-400"
                     style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
                 >
                     <span>

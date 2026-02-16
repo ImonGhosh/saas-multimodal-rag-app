@@ -58,7 +58,13 @@ tqdm>=4.67,<5
 # Document AI / Speech (heavy deps)
 # =========================
 docling[vlm]>=2.55.0
-openai-whisper>=20250625
+openai-whisper==20240930
+
+# CPU-only PyTorch wheels (avoid CUDA dependencies) # For App Runner
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.3.0+cpu
+torchvision==0.18.0+cpu
+torchaudio==2.3.0+cpu
 
 # =========================
 # Observability (optional)

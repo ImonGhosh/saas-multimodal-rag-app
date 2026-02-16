@@ -1,0 +1,33 @@
+# Node/Next
+node_modules
+.next
+out
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+*.log
+
+# Python
+__pycache__
+*.py[cod]
+*.pyd
+.venv
+venv
+
+# Env
+.env
+.env.*
+
+# VCS/Editor
+.git
+.gitignore
+.DS_Store
+Thumbs.db
+
+# Local artifacts
+api/documents
+api/documents_store
+api/logs
+evaluation
+test.ipynb
+tsconfig.tsbuildinfo

@@ -5,6 +5,8 @@ from fastapi import UploadFile, File, Form  # type: ignore
 from fastapi import Depends  # type: ignore
 from fastapi.responses import PlainTextResponse  # type: ignore
 from fastapi.responses import JSONResponse  # type: ignore
+from fastapi.responses import FileResponse  # type: ignore
+from fastapi.staticfiles import StaticFiles  # type: ignore
 from fastapi_clerk_auth import ClerkConfig, ClerkHTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel  # type: ignore
 from openai import OpenAI  # type: ignore
@@ -253,4 +255,20 @@ async def ingest_file_status(job_id: str):
     if job is None:
         raise HTTPException(status_code=404, detail="Unknown job_id")
     return JSONResponse(content=job)
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for AWS App Runner"""
+    return {"status": "healthy"}
+
+
+static_path = ROOT_DIR / "static"
+if static_path.exists():
+    # Serve index.html for the root path
+    @app.get("/")
+    async def serve_root():
+        return FileResponse(static_path / "index.html")
     
+    # Mount static files for all other routes
+    app.mount("/", StaticFiles(directory=str(static_path), html=True), name="static")
+
