@@ -14,6 +14,9 @@ from typing import Any, List
 
 from dotenv import load_dotenv
 from pydantic_ai import Agent, RunContext
+from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.providers.openai import OpenAIProvider
+from langfuse.openai import openai as langfuse_openai
 
 # Load environment variables
 load_dotenv()
@@ -297,8 +300,16 @@ async def find_content_by_title(ctx: RunContext[None], title: str) -> str:
 # When you find relevant information, synthesize it clearly and cite the source documents.""",
 #     tools=[search_knowledge_base]
 # )
+# Use Langfuse OpenAI wrapper for usage/cost/latency tracking
+model_name = os.getenv("LLM_MODEL", "gpt-4o-mini")
+langfuse_openai_client = langfuse_openai.AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+model = OpenAIModel(
+    model_name,
+    provider=OpenAIProvider(openai_client=langfuse_openai_client),
+)
+
 agent = Agent(
-    'openai:gpt-4o-mini',
+    model,
     system_prompt="""You are an intelligent knowledge assistant with access to some documentation and information.
 Your role is to help users find accurate information from the knowledge base.
 You have a professional yet friendly demeanor.

@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import asyncpg
 from dotenv import load_dotenv
-from openai import AsyncOpenAI
+from langfuse.openai import openai as langfuse_openai
 
 from .chunker import ChunkingConfig, create_chunker, DocumentChunk
 from .embedder import create_embedder
@@ -34,7 +34,7 @@ except ImportError:
 
 # Load environment variables
 load_dotenv()
-openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai_client = langfuse_openai.AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ import logging
 from typing import Optional
 from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openai import OpenAIProvider
-import openai
+from langfuse.openai import openai as langfuse_openai
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -31,7 +31,7 @@ def get_llm_model() -> OpenAIModel:
     return OpenAIModel(llm_choice, provider=OpenAIProvider(api_key=api_key))
 
 
-def get_embedding_client() -> openai.AsyncOpenAI:
+def get_embedding_client() -> langfuse_openai.AsyncOpenAI:
     """
     Get OpenAI client for embeddings.
     
@@ -43,7 +43,7 @@ def get_embedding_client() -> openai.AsyncOpenAI:
     if not api_key:
         raise ValueError("OPENAI_API_KEY environment variable is required")
     
-    return openai.AsyncOpenAI(api_key=api_key)
+    return langfuse_openai.AsyncOpenAI(api_key=api_key)
 
 
 def get_embedding_model() -> str:

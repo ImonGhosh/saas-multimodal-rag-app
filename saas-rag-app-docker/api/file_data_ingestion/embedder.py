@@ -11,6 +11,7 @@ import json
 
 from openai import RateLimitError, APIError
 from dotenv import load_dotenv
+from langfuse import Langfuse
 
 from .chunker import DocumentChunk
 
@@ -41,6 +42,8 @@ try:
         text_payload,
         store_prompts,
         store_responses,
+        langfuse_enabled,
+        get_current_trace,
     )
 except ImportError:
     try:
@@ -50,6 +53,8 @@ except ImportError:
             text_payload,
             store_prompts,
             store_responses,
+            langfuse_enabled,
+            get_current_trace,
         )
     except ImportError:
         from utils.observability import (  # type: ignore
@@ -58,7 +63,60 @@ except ImportError:
             text_payload,
             store_prompts,
             store_responses,
+            langfuse_enabled,
+            get_current_trace,
         )
+
+_LANGFUSE_CLIENT: Langfuse | None = None
+
+
+def _get_langfuse_client() -> Langfuse | None:
+    global _LANGFUSE_CLIENT
+    if _LANGFUSE_CLIENT is not None:
+        return _LANGFUSE_CLIENT
+    if not langfuse_enabled():
+        return None
+    try:
+        _LANGFUSE_CLIENT = Langfuse()
+        return _LANGFUSE_CLIENT
+    except Exception as err:
+        logger.warning("Failed to initialize Langfuse client for embeddings: %s", err)
+        _LANGFUSE_CLIENT = None
+        return None
+
+
+def _start_embedding_generation(
+    *,
+    name: str,
+    model: str,
+    input_payload: Dict[str, Any],
+    metadata: Dict[str, Any] | None = None,
+):
+    trace = get_current_trace()
+    if trace is not None:
+        try:
+            return trace.generation(
+                name=name,
+                model=model,
+                input=input_payload,
+                metadata=metadata or {},
+            )
+        except Exception:
+            pass
+
+    client = _get_langfuse_client()
+    if client is None:
+        return None
+    try:
+        return client.generation(
+            name=name,
+            model=model,
+            input=input_payload,
+            metadata=metadata or {},
+        )
+    except Exception as err:
+        logger.debug("Failed to start embedding generation: %s", err)
+        return None
 
 
 class EmbeddingGenerator:
@@ -117,6 +175,12 @@ class EmbeddingGenerator:
             input=text_payload(text, store=store_prompts()),
             metadata={"model": self.model},
         )
+        generation = _start_embedding_generation(
+            name="embed.single",
+            model=self.model,
+            input_payload=text_payload(text, store=store_prompts()),
+            metadata={"model": self.model},
+        )
         for attempt in range(self.max_retries):
             try:
                 response = await embedding_client.embeddings.create(
@@ -125,11 +189,19 @@ class EmbeddingGenerator:
                 )
                 
                 embedding = response.data[0].embedding
+                usage_details = response.usage.model_dump() if response.usage else None
+                if generation is not None:
+                    generation.end(
+                        output={"embedding_dim": len(embedding)},
+                        usage_details=usage_details,
+                    )
                 end_span(span, metadata={"attempt": attempt + 1, "embedding_dim": len(embedding)})
                 return embedding
                 
             except RateLimitError as e:
                 if attempt == self.max_retries - 1:
+                    if generation is not None:
+                        generation.end(level="ERROR", status_message=str(e))
                     end_span(span, error=e)
                     raise
                 
@@ -141,6 +213,8 @@ class EmbeddingGenerator:
             except APIError as e:
                 logger.error(f"OpenAI API error: {e}")
                 if attempt == self.max_retries - 1:
+                    if generation is not None:
+                        generation.end(level="ERROR", status_message=str(e))
                     end_span(span, error=e)
                     raise
                 await asyncio.sleep(self.retry_delay)
@@ -148,6 +222,8 @@ class EmbeddingGenerator:
             except Exception as e:
                 logger.error(f"Unexpected error generating embedding: {e}")
                 if attempt == self.max_retries - 1:
+                    if generation is not None:
+                        generation.end(level="ERROR", status_message=str(e))
                     end_span(span, error=e)
                     raise
                 await asyncio.sleep(self.retry_delay)
@@ -183,6 +259,12 @@ class EmbeddingGenerator:
             input={"count": len(processed_texts)},
             metadata={"model": self.model},
         )
+        generation = _start_embedding_generation(
+            name="embed.batch",
+            model=self.model,
+            input_payload={"count": len(processed_texts)},
+            metadata={"model": self.model},
+        )
         for attempt in range(self.max_retries):
             try:
                 response = await embedding_client.embeddings.create(
@@ -191,6 +273,12 @@ class EmbeddingGenerator:
                 )
                 
                 embeddings = [data.embedding for data in response.data]
+                usage_details = response.usage.model_dump() if response.usage else None
+                if generation is not None:
+                    generation.end(
+                        output={"count": len(embeddings), "embedding_dim": len(embeddings[0]) if embeddings else 0},
+                        usage_details=usage_details,
+                    )
                 end_span(
                     span,
                     metadata={"attempt": attempt + 1, "count": len(embeddings), "embedding_dim": len(embeddings[0]) if embeddings else 0},
@@ -199,6 +287,8 @@ class EmbeddingGenerator:
                 
             except RateLimitError as e:
                 if attempt == self.max_retries - 1:
+                    if generation is not None:
+                        generation.end(level="ERROR", status_message=str(e))
                     end_span(span, error=e)
                     raise
                 
@@ -209,6 +299,8 @@ class EmbeddingGenerator:
             except APIError as e:
                 logger.error(f"OpenAI API error in batch: {e}")
                 if attempt == self.max_retries - 1:
+                    if generation is not None:
+                        generation.end(level="ERROR", status_message=str(e))
                     end_span(span, error=e)
                     # Fallback to individual processing
                     return await self._process_individually(processed_texts)
@@ -217,6 +309,8 @@ class EmbeddingGenerator:
             except Exception as e:
                 logger.error(f"Unexpected error in batch embedding: {e}")
                 if attempt == self.max_retries - 1:
+                    if generation is not None:
+                        generation.end(level="ERROR", status_message=str(e))
                     end_span(span, error=e)
                     return await self._process_individually(processed_texts)
                 await asyncio.sleep(self.retry_delay)
