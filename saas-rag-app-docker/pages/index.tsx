@@ -56,11 +56,26 @@ export default function Home() {
     const [ingestMode, setIngestMode] = useState<'url' | 'file'>('url');
     const [ingestion_response, setIngestionResponse] = useState<string>('');
     const [ingestionError, setIngestionError] = useState<string>('');
+    const [fileValidationError, setFileValidationError] = useState<string>('');
     const [isIngesting, setIsIngesting] = useState<boolean>(false);
     const [fileInputKey, setFileInputKey] = useState<number>(0);
-    const [isImageEnabled] = useState<boolean>(false);
+    const [isImageEnabled, setIsImageEnabled] = useState<boolean>(false);
 
     const maxFileSizeBytes = 5 * 1024 * 1024;
+    const allowedExtensions = new Set([
+        'md',
+        'markdown',
+        'txt',
+        'pdf',
+        'docx',
+        'doc',
+        'pptx',
+        'ppt',
+        'xlsx',
+        'xls',
+        'html',
+        'htm',
+    ]);
 
     const wallpaperDark: CSSProperties = {
         backgroundColor: '#0f172a',
@@ -239,9 +254,18 @@ export default function Home() {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] ?? null;
         setIngestionError('');
+        setFileValidationError('');
 
         if (!file) {
             setIngestFile(null);
+            return;
+        }
+
+        const extension = file.name.split('.').pop()?.toLowerCase();
+        if (!extension || !allowedExtensions.has(extension)) {
+            setFileValidationError('File type not supported.');
+            setIngestFile(null);
+            setFileInputKey((prev) => prev + 1);
             return;
         }
 
@@ -358,12 +382,20 @@ export default function Home() {
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent text-gray-900 dark:text-gray-100"
                     />
                 ) : (
-                            <input
-                                key={fileInputKey}
-                                type="file"
-                                onChange={handleFileChange}
-                                className="w-full rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 file:mr-4 file:rounded-l-md file:rounded-r-none file:border-0 file:border-r file:border-slate-300 dark:file:border-slate-600 file:bg-slate-200 dark:file:bg-slate-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-800 dark:file:text-slate-100"
-                            />
+                    <div className="relative">
+                        <input
+                            key={fileInputKey}
+                            type="file"
+                            onChange={handleFileChange}
+                            accept=".md,.markdown,.txt,.pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.html,.htm"
+                            className="w-full rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 file:mr-4 file:rounded-l-md file:rounded-r-none file:border-0 file:border-r file:border-slate-300 dark:file:border-slate-600 file:bg-slate-200 dark:file:bg-slate-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-800 dark:file:text-slate-100"
+                        />
+                        {fileValidationError && (
+                            <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 shadow-sm dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
+                                {fileValidationError}
+                            </div>
+                        )}
+                    </div>
                 )}
                 <div className="flex flex-wrap items-center gap-3">
                     <button
@@ -407,17 +439,17 @@ export default function Home() {
                 )}
                 {ingestMode === 'file' && (
                     <label
-                        className="mt-2 flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100"
+                        className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"
                         style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
                     >
                         <input
                             type="checkbox"
                             checked={isImageEnabled}
-                            readOnly
+                            onChange={(event) => setIsImageEnabled(event.target.checked)}
                             disabled
-                            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 cursor-not-allowed"
                         />
-                        Enable image extraction for PDF files (This feature will be available soon)
+                        Enable image extraction for PDF files (Feature coming soon)
                     </label>
                 )}
             </form>
