@@ -294,7 +294,7 @@ saas-rag-app/
   evaluation/                    # DeepEval scripts, datasets, logs
 
 saas-rag-app-docker/             # Dockerized deployment variant
-saas-rag-app-vercel/             # Alternate lightweight variant
+saas-rag-app-vercel/             # Alternate vercel variant (not live)
 ```
 
 ## Deployment Note
