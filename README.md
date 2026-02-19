@@ -10,7 +10,7 @@ End-to-end GenAI application with:
 - Langfuse tracing + cost/latency monitoring
 - DeepEval-based RAG evaluation
 
-Live AWS deployment (lightweight variant): https://m6hkuhagcc.eu-west-1.awsapprunner.com/
+Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/
 
 ## User Interface
 
