@@ -181,8 +181,9 @@ Metrics used :
 - Retrieval: `ContextualPrecisionMetric`, `ContextualRecallMetric`
 - Generation: `AnswerRelevancyMetric`, `FaithfulnessMetric`
 
-Evaluation script: `evaluation/eval_retrieval.py`
-Evaluation results: `evaluation/eval_results/retrieval_eval_20260212_154806_console.log`
+Evaluation script: `./saas-rag-app/evaluation/eval_retrieval.py`  
+Evaluation dataset: `./saas-rag-app/evaluation/evaluation_datasets/rag_eval_dataset_final.csv`  
+Evaluation results: `./saas-rag-app/evaluation/eval_results/retrieval_eval_20260212_154806_console.log`
 
 Achieved Pass rates:
 - Contextual Precision: `90.24%`
@@ -270,14 +271,14 @@ docker compose up --build
 Then open:
 - App (UI + API): `http://localhost:8000`
 
-## AWS Deployment Flow (ECR + App Runner)
+## AWS Deployment (ECR + App Runner)
 
 High-level deployment process used:
-1. Build Docker image from `saas-rag-app-docker/`.
-2. Push image to Amazon ECR.
-3. Configure AWS App Runner service from ECR image.
-4. Set runtime environment variables in App Runner.
-5. Deploy and validate `/health` and end-to-end flows.
+1. Built Docker image from `saas-rag-app-docker/`.
+2. Pushed image to Amazon ECR.
+3. Configured AWS App Runner service from ECR image.
+4. Set up runtime environment variables in App Runner.
+5. Deployed and validated end-to-end functionality on AWS.
 
 ## Repository Structure
 
