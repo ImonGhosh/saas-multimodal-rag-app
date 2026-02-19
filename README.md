@@ -1,6 +1,6 @@
 # SaaS Multimodal Agentic RAG App
 
-Ingest URLs and personal documents into expert knowledge, then query them through natural language.
+A Multimodal RAG application, allowing users to ingest URLs and personal documents into expert knowledge and query them through natural language.
 
 End-to-end GenAI application with:
 - FastAPI backend + Next.js frontend
@@ -8,19 +8,22 @@ End-to-end GenAI application with:
 - Agentic RAG with tool-calling over pgvector
 - Clerk authentication
 - Langfuse tracing + cost/latency monitoring
-- DeepEval-based retrieval/generation evaluation
+- DeepEval-based RAG evaluation
 
-Live deployment (lightweight variant): `https://m6hkuhagcc.eu-west-1.awsapprunner.com/`
+Live AWS deployment (lightweight variant): https://m6hkuhagcc.eu-west-1.awsapprunner.com/
 
-## App Screenshot
+## User Interface
 
-![App Screenshot](./app_screenshot.png)
+<p float="left">
+  <img src="./app_screenshot.png" alt="App Screenshot" width="49%" />
+  <img src="./app_screenshot.png" alt="App Screenshot" width="49%" />
+</p>
 
 ## High Level System Design
 
 ![High Level System Design](./system_design.png)
 
-## Why This Project
+## Motivation
 
 This project is built as a production-style RAG system, not a demo chatbot:
 - Hybrid ingestion for websites, documents, and audio
@@ -48,13 +51,13 @@ Observability: Langfuse traces/spans + usage/cost/latency
 Evaluation: DeepEval retrieval + generation metrics
 ```
 
-## Tech Stack
+## Technology Stack
 
 - Backend: FastAPI, asyncpg, PydanticAI, OpenAI API
-- Frontend: Next.js (Pages Router), React, Clerk, React Markdown
+- Frontend: Next.js (Pages Router), React, Clerk
 - Ingestion: Crawl4AI, Docling (including vision), Whisper ASR
 - Data: PostgreSQL, pgvector (`vector(1536)`)
-- Observability: Langfuse, structured Python logging
+- Observability: Langfuse
 - Evaluation: DeepEval
 - Containerization: Docker multi-stage build, docker-compose
 - Deployment: Amazon ECR + AWS App Runner
@@ -77,20 +80,18 @@ Evaluation: DeepEval retrieval + generation metrics
 - `.md`, `.markdown`, `.txt`, `.pdf`, `.docx`, `.doc`, `.pptx`, `.ppt`, `.xlsx`, `.xls`, `.html`, `.htm`, `.mp3`, `.wav`, `.m4a`, `.flac`
 - UI enforces `<= 5 MB` upload size
 - Async background job model:
-- `POST /ingest-file` returns `202` + `job_id`
-- `GET /ingest-file/status/{job_id}` polls status
+  - `POST /ingest-file` returns `202` + `job_id`
+  - `GET /ingest-file/status/{job_id}` polls status
 
-#### Parsing and multimodality
+#### Parsing, Chunking and multimodal support
 - Docling converts docs to markdown and emits `DoclingDocument`
 - Docling HybridChunker performs structure-aware chunking
 - Audio files transcribed with Whisper (via Docling ASR pipeline)
-- Optional PDF image extraction:
-- `isImageEnabled=true` enables `smolvlm_picture_description`
+- Optional PDF image extraction: Activating this enables vision model support via docling's `smolvlm_picture_description` library
 
 #### Embeddings + storage
 - Embedding model default: `text-embedding-3-small` (1536 dim)
-- Stores full document in `documents`
-- Stores chunk rows + vectors + metadata in `chunks`
+- Stores full document, metadata and chunks in Postgres database
 
 ### 2) Agentic RAG
 
@@ -117,23 +118,38 @@ Retrieval behavior:
 
 Schema file: `sql/schema.sql`
 
-### Tables
-- `documents`
-- `id UUID PK`
-- `title`, `source`, `content`
-- `metadata JSONB`
-- timestamps (`created_at`, `updated_at`)
-- `chunks`
-- `id UUID PK`
-- `document_id` FK -> `documents(id)` with `ON DELETE CASCADE`
-- `content`, `embedding vector(1536)`
-- `chunk_index`, `token_count`, `metadata JSONB`, `created_at`
+### `documents`
+| Column       | Type   | Notes |
+|-------------|--------|-------|
+| `id`        | UUID   | Primary key |
+| `title`     | text   |  |
+| `source`    | text   |  |
+| `content`   | text   |  |
+| `metadata`  | JSONB  |  |
+| `created_at`| timestamptz | created timestamp |
+| `updated_at`| timestamptz | updated timestamp |
+
+---
+
+### `chunks`
+| Column        | Type            | Notes |
+|--------------|-----------------|------|
+| `id`         | UUID            | Primary key |
+| `document_id`| UUID            | Foreign key → `documents(id)` **ON DELETE CASCADE** |
+| `content`    | text            | chunk text |
+| `embedding`  | vector(1536)    | embedding vector |
+| `chunk_index`| integer         | order within document |
+| `token_count`| integer         | token count for the chunk |
+| `metadata`   | JSONB           | chunk-level metadata |
+| `created_at` | timestamptz     | created timestamp |
+
+**Relationship:** `documents (1) → (many) chunks`
+
 
 ### Indexes and search function
 - `ivfflat` vector index on `chunks.embedding`
 - Metadata GIN index on `documents.metadata`
-- SQL function `match_chunks(query_embedding, match_count)` returns:
-- chunk content, similarity score, metadata, document title/source
+- SQL function `match_chunks(query_embedding, match_count)` returns: chunk content, similarity score, metadata, document title/source
 
 This design enables:
 - Fast semantic retrieval
