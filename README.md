@@ -10,6 +10,14 @@ End-to-end GenAI application with:
 
 Live deployment (lightweight variant): `https://m6hkuhagcc.eu-west-1.awsapprunner.com/`
 
+## App Screenshot
+
+![App Screenshot](./app_screenshot.png)
+
+## High Level System Design
+
+![High Level System Design](./system_design.png)
+
 ## Why This Project
 
 This project is built as a production-style RAG system, not a demo chatbot:
