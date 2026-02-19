@@ -16,7 +16,7 @@ Live AWS deployment (lightweight variant): https://m6hkuhagcc.eu-west-1.awsappru
 
 <p float="left">
   <img src="./app_screenshot.png" alt="App Screenshot" width="49%" />
-  <img src="./app_screenshot.png" alt="App Screenshot" width="49%" />
+  <img src="./app_screenshot_2.png" alt="App Screenshot" width="49%" />
 </p>
 
 ## High Level System Design
@@ -157,6 +157,8 @@ This design enables:
 - Structured fallback retrieval by title/document
 
 ## Observability, Logging, Monitoring
+<img width="1717" height="812" alt="image" src="https://github.com/user-attachments/assets/f33c3655-21f5-4eab-ac06-22e746c8435a" />
+<img width="1718" height="771" alt="image" src="https://github.com/user-attachments/assets/7c06826d-e578-4cc1-ad61-81376f72e232" />
 
 ### Logging
 - Daily rotating backend logs via custom handler
@@ -169,20 +171,20 @@ This design enables:
 - Sensitive text redaction and payload hashing are built in
 
 ### Cost/usage/latency
-- OpenAI calls are wrapped for Langfuse usage accounting
 - Real-time monitoring via Langfuse dashboard
 
 ## Evaluation (DeepEval)
+RAG Evaluation was conducted using DeepEval, using a custom evaluation dataset.
 
-Evaluation driver: `evaluation/eval_retrieval.py`
 
-Metrics:
+Metrics used :
 - Retrieval: `ContextualPrecisionMetric`, `ContextualRecallMetric`
 - Generation: `AnswerRelevancyMetric`, `FaithfulnessMetric`
 
-Logged run (console summary): `evaluation/eval_results/retrieval_eval_20260212_154806_console.log`
+Evaluation script: `evaluation/eval_retrieval.py`
+Evaluation results: `evaluation/eval_results/retrieval_eval_20260212_154806_console.log`
 
-Pass rates:
+Achieved Pass rates:
 - Contextual Precision: `90.24%`
 - Contextual Recall: `93.90%`
 - Answer Relevancy: `95.12%`
