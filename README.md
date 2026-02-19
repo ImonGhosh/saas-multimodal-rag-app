@@ -1,5 +1,7 @@
 # SaaS Multimodal Agentic RAG App
 
+Ingest URLs and personal documents into expert knowledge, then query them through natural language.
+
 End-to-end GenAI application with:
 - FastAPI backend + Next.js frontend
 - URL and file ingestion into structured knowledge
