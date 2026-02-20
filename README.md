@@ -22,7 +22,7 @@ Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/
 
 ## High Level System Architecture
 
-![High Level System Design](./system_architecture.png)
+<img src="./system_architecture.png" alt="High Level System Design" width="700">
 
 ## Motivation
 
