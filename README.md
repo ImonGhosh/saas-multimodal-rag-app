@@ -162,10 +162,6 @@ This design enables:
 <img width="1717" height="812" alt="image" src="https://github.com/user-attachments/assets/f33c3655-21f5-4eab-ac06-22e746c8435a" />
 <img width="1718" height="771" alt="image" src="https://github.com/user-attachments/assets/7c06826d-e578-4cc1-ad61-81376f72e232" />
 
-### Logging
-- Daily rotating backend logs via custom handler
-- Files: `api/logs/backend.log.YYYY-MM-DD`
-
 ### Langfuse tracing
 - End-to-end traces/spans for ingestion and query paths
 - Captures tool usage, step-level metadata, and outputs
@@ -174,6 +170,12 @@ This design enables:
 
 ### Cost/usage/latency
 - Real-time monitoring via Langfuse dashboard
+
+### Logging
+- System level : Daily rotating backend logs via custom handler (Files: `api/logs/backend.log.YYYY-MM-DD`)
+- AWS : Cloudwatch
+
+
 
 ## Evaluation (DeepEval)
 RAG Evaluation was conducted using DeepEval, using a custom evaluation dataset.
