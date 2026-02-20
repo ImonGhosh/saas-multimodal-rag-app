@@ -10,18 +10,18 @@ End-to-end GenAI application with:
 - Langfuse tracing + cost/latency monitoring
 - DeepEval-based RAG evaluation
 
-Live AWS deployment (lightweight variant): https://m6hkuhagcc.eu-west-1.awsapprunner.com/
+Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/
 
 ## User Interface
 
 <p float="left">
   <img src="./app_screenshot.png" alt="App Screenshot" width="49%" />
-  <img src="./app_screenshot.png" alt="App Screenshot" width="49%" />
+  <img src="./app_screenshot_2.png" alt="App Screenshot" width="49%" />
 </p>
 
-## High Level System Design
+## High Level System Architecture
 
-![High Level System Design](./system_design.png)
+![High Level System Design](./system_architecture.png)
 
 ## Motivation
 
@@ -157,6 +157,8 @@ This design enables:
 - Structured fallback retrieval by title/document
 
 ## Observability, Logging, Monitoring
+<img width="1717" height="812" alt="image" src="https://github.com/user-attachments/assets/f33c3655-21f5-4eab-ac06-22e746c8435a" />
+<img width="1718" height="771" alt="image" src="https://github.com/user-attachments/assets/7c06826d-e578-4cc1-ad61-81376f72e232" />
 
 ### Logging
 - Daily rotating backend logs via custom handler
@@ -169,20 +171,21 @@ This design enables:
 - Sensitive text redaction and payload hashing are built in
 
 ### Cost/usage/latency
-- OpenAI calls are wrapped for Langfuse usage accounting
 - Real-time monitoring via Langfuse dashboard
 
 ## Evaluation (DeepEval)
+RAG Evaluation was conducted using DeepEval, using a custom evaluation dataset.
 
-Evaluation driver: `evaluation/eval_retrieval.py`
 
-Metrics:
+Metrics used :
 - Retrieval: `ContextualPrecisionMetric`, `ContextualRecallMetric`
 - Generation: `AnswerRelevancyMetric`, `FaithfulnessMetric`
 
-Logged run (console summary): `evaluation/eval_results/retrieval_eval_20260212_154806_console.log`
+Evaluation script: `./saas-rag-app/evaluation/eval_retrieval.py`  
+Evaluation dataset: `./saas-rag-app/evaluation/evaluation_datasets/rag_eval_dataset_final.csv`  
+Evaluation results: `./saas-rag-app/evaluation/eval_results/retrieval_eval_20260212_154806_console.log`
 
-Pass rates:
+Achieved Pass rates:
 - Contextual Precision: `90.24%`
 - Contextual Recall: `93.90%`
 - Answer Relevancy: `95.12%`
@@ -268,14 +271,14 @@ docker compose up --build
 Then open:
 - App (UI + API): `http://localhost:8000`
 
-## AWS Deployment Flow (ECR + App Runner)
+## AWS Deployment (ECR + App Runner)
 
 High-level deployment process used:
-1. Build Docker image from `saas-rag-app-docker/`.
-2. Push image to Amazon ECR.
-3. Configure AWS App Runner service from ECR image.
-4. Set runtime environment variables in App Runner.
-5. Deploy and validate `/health` and end-to-end flows.
+1. Built Docker image from `saas-rag-app-docker/`.
+2. Pushed image to Amazon ECR.
+3. Configured AWS App Runner service from ECR image.
+4. Set up runtime environment variables in App Runner.
+5. Deployed and validated end-to-end functionality on AWS.
 
 ## Repository Structure
 
@@ -291,7 +294,7 @@ saas-rag-app/
   evaluation/                    # DeepEval scripts, datasets, logs
 
 saas-rag-app-docker/             # Dockerized deployment variant
-saas-rag-app-vercel/             # Alternate lightweight variant
+saas-rag-app-vercel/             # Alternate vercel variant (not live)
 ```
 
 ## Deployment Note
