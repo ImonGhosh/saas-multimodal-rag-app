@@ -19,9 +19,9 @@ Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/
   <img src="./app_screenshot_2.png" alt="App Screenshot" width="49%" />
 </p>
 
-## High Level System Design
+## High Level System Architecture
 
-![High Level System Design](./system_design.png)
+![High Level System Design](./system_architecture.png)
 
 ## Motivation
 
