@@ -9,6 +9,7 @@ End-to-end GenAI application with:
 - Clerk authentication
 - Langfuse tracing + cost/latency monitoring
 - DeepEval-based RAG evaluation
+- Containerization and AWS Deployment
 
 Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/
 
