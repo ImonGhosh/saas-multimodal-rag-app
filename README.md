@@ -32,8 +32,7 @@ This project is built as a production-style RAG system, not a demo chatbot:
 - Observability and quality gates (logs, traces, eval metrics)
 - Containerized deployment path to AWS ECR + App Runner
 
-## High-Level Architecture
-
+<!--
 ```text
 User (Next.js + Clerk)
   -> FastAPI endpoints (/api, /ingest, /ingest-file)
@@ -50,17 +49,18 @@ User (Next.js + Clerk)
 Observability: Langfuse traces/spans + usage/cost/latency
 Evaluation: DeepEval retrieval + generation metrics
 ```
+-->
 
 ## Technology Stack
 
-- Backend: FastAPI, asyncpg, PydanticAI, OpenAI API
-- Frontend: Next.js (Pages Router), React, Clerk
-- Ingestion: Crawl4AI, Docling (including vision), Whisper ASR
-- Data: PostgreSQL, pgvector (`vector(1536)`)
-- Observability: Langfuse
-- Evaluation: DeepEval
-- Containerization: Docker multi-stage build, docker-compose
-- Deployment: Amazon ECR + AWS App Runner
+- **Backend**: FastAPI, asyncpg, PydanticAI, OpenAI API
+- **Frontend**: Next.js (Pages Router), React, Clerk
+- **Ingestion**: Crawl4AI, Docling (including vision), Whisper ASR
+- **Data**: PostgreSQL, pgvector (`vector(1536)`)
+- **Observability**: Langfuse
+- **Evaluation**: DeepEval
+- **Containerization**: Docker multi-stage build, docker-compose
+- **Deployment**: Amazon ECR + AWS App Runner
 
 ## Core Features
 
@@ -83,9 +83,10 @@ Evaluation: DeepEval retrieval + generation metrics
   - `POST /ingest-file` returns `202` + `job_id`
   - `GET /ingest-file/status/{job_id}` polls status
 
-#### Parsing, Chunking and multimodal support
-- Docling converts docs to markdown and emits `DoclingDocument`
-- Docling HybridChunker performs structure-aware chunking
+#### Crawling, Parsing, Chunking and multimodal support
+- Crawl4AI crawls website data and converts it to markdown
+- Docling converts uploaded docs to markdown
+- Docling creates a `DoclingDocument` and applies native HybridChunker to perform structure-aware chunking
 - Audio files transcribed with Whisper (via Docling ASR pipeline)
 - Optional PDF image extraction: Activating this enables vision model support via docling's `smolvlm_picture_description` library
 
