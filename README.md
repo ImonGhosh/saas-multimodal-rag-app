@@ -16,7 +16,6 @@ Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/
 ## User Interface
 
 <p float="left">
-  <img src="./app_screenshot.png" alt="App Screenshot" width="49%" />
   <img src="./app_screenshot_2.png" alt="App Screenshot" width="49%" />
 </p>
 
