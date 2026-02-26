@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { SignInButton, SignedIn, SignedOut, UserButton, useAuth } from '@clerk/nextjs';
+import { Send, Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from "remark-gfm";
 
@@ -46,11 +47,18 @@ function Markdown({ children }: { children: string }) {
     );
 }
 
+interface Message {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: Date;
+}
+
 export default function Home() {
     const { getToken } = useAuth();
-    const [idea, setIdea] = useState<string>('');
     const [inputText, setInputText] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [ingestUrl, setIngestUrl] = useState<string>('');
     const [ingestFile, setIngestFile] = useState<File | null>(null);
     const [ingestMode, setIngestMode] = useState<'url' | 'file'>('url');
@@ -63,6 +71,7 @@ export default function Home() {
     const [splitPercent, setSplitPercent] = useState<number>(70);
     const splitContainerRef = useRef<HTMLDivElement | null>(null);
     const isDraggingSplitRef = useRef<boolean>(false);
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
     const maxFileSizeBytes = 5 * 1024 * 1024;
     const allowedExtensions = new Set([
@@ -100,6 +109,9 @@ export default function Home() {
         ['--left-panel' as string]: `${splitPercent}%`,
         ['--right-panel' as string]: `${100 - splitPercent}%`,
     } as CSSProperties;
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     const updateSplitPercent = (clientX: number) => {
         if (!splitContainerRef.current) return;
@@ -131,6 +143,10 @@ export default function Home() {
         };
     }, []);
 
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, isLoading]);
+
     const handleDividerMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         isDraggingSplitRef.current = true;
@@ -139,18 +155,32 @@ export default function Home() {
         updateSplitPercent(event.clientX);
     };
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const sendMessage = async () => {
         if (isLoading) return;
+        const trimmed = inputText.trim();
+        if (!trimmed) return;
 
-        setIdea('');
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: trimmed,
+            timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, userMessage]);
+        setInputText('');
         setIsLoading(true);
 
         try {
             const jwt = await getToken();
             if (!jwt) {
-                setIdea('Authentication required');
-                setIsLoading(false);
+                const errorMessage: Message = {
+                    id: (Date.now() + 1).toString(),
+                    role: 'assistant',
+                    content: 'Authentication required',
+                    timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, errorMessage]);
                 return;
             }
 
@@ -160,18 +190,42 @@ export default function Home() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${jwt}`,
                 },
-                body: JSON.stringify({ text: inputText }),
+                body: JSON.stringify({ text: trimmed }),
             });
 
             const text = await res.text();
             if (!res.ok) throw new Error(text || `Request failed (${res.status})`);
 
-            setIdea(text);
+            const assistantMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: text,
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, assistantMessage]);
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            setIdea('Error: ' + message);
+            const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: 'Error: ' + message,
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        void sendMessage();
+    };
+
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            void sendMessage();
         }
     };
 
@@ -421,44 +475,118 @@ export default function Home() {
                         style={splitStyle}
                         className="flex w-full min-h-[60vh] flex-col gap-6 lg:flex-row lg:gap-0 lg:rounded-2xl lg:border lg:border-white/10 lg:bg-white/5 lg:backdrop-blur"
                     >
-                        <div className="w-full lg:flex-none lg:basis-[var(--left-panel)] lg:px-6 lg:py-6">
+                        <div className="flex w-full flex-col min-h-0 lg:flex-none lg:basis-[var(--left-panel)] lg:px-6 lg:py-6">
                             <h2
                                 className="mb-4 text-xl font-semibold text-slate-100"
                                 style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
                             >
                                 Start conversation with your RAG agent
                             </h2>
-            <form
-                onSubmit={handleSubmit}
-                className="w-full p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm space-y-4"
-                aria-busy={isLoading}
-            >
-                <input
-                    type="text"
-                    value={inputText}
-                    onChange={(event) => setInputText(event.target.value)}
-                    placeholder="Ask any question about your documents..."
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent text-gray-900 dark:text-gray-100"
-                />
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                    {isLoading && (
-                        <span
-                            className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin"
-                            aria-hidden="true"
-                        />
-                    )}
-                    {isLoading ? 'Generating…' : 'Generate'}
-                </button>
-                {idea && (
-                    <div className="text-gray-900 dark:text-gray-100">
-                        <Markdown>{idea}</Markdown>
-                    </div>
-                )}
-            </form>
+                            <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-800">
+                                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+                                    {messages.length === 0 && !isLoading && (
+                                        <div className="text-center text-slate-400 mt-8">
+                                            <Bot className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+                                            <p>Hello! I&apos;m your RAG agent.</p>
+                                            <p className="text-sm mt-2">
+                                                Ask me anything about your documents.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {messages.map((message) => (
+                                        <div
+                                            key={message.id}
+                                            className={`flex gap-3 ${
+                                                message.role === 'user' ? 'justify-end' : 'justify-start'
+                                            }`}
+                                        >
+                                            {message.role === 'assistant' && (
+                                                <div className="flex-shrink-0">
+                                                    <div className="w-8 h-8 bg-emerald-700 rounded-full flex items-center justify-center">
+                                                        <Bot className="w-5 h-5 text-white" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div
+                                                className={`max-w-[70%] rounded-lg p-3 ${
+                                                    message.role === 'user'
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'bg-white border border-gray-200 text-gray-800 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100'
+                                                }`}
+                                            >
+                                                {message.role === 'assistant' ? (
+                                                    <Markdown>{message.content}</Markdown>
+                                                ) : (
+                                                    <p className="whitespace-pre-wrap">{message.content}</p>
+                                                )}
+                                                <p
+                                                    className={`text-xs mt-1 ${
+                                                        message.role === 'user'
+                                                            ? 'text-blue-100'
+                                                            : 'text-gray-500 dark:text-gray-400'
+                                                    }`}
+                                                >
+                                                    {message.timestamp.toLocaleTimeString()}
+                                                </p>
+                                            </div>
+
+                                            {message.role === 'user' && (
+                                                <div className="flex-shrink-0">
+                                                    <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center">
+                                                        <User className="w-5 h-5 text-white" />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                    {isLoading && (
+                                        <div className="flex gap-3 justify-start">
+                                            <div className="flex-shrink-0">
+                                                <div className="w-8 h-8 bg-emerald-700 rounded-full flex items-center justify-center">
+                                                    <Bot className="w-5 h-5 text-white" />
+                                                </div>
+                                            </div>
+                                            <div className="bg-white border border-gray-200 rounded-lg p-3 dark:bg-gray-900 dark:border-gray-700">
+                                                <div className="flex space-x-2">
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100" />
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div ref={messagesEndRef} />
+                                </div>
+
+                                <form
+                                    onSubmit={handleSubmit}
+                                    className="border-t border-gray-200 p-4 bg-white dark:bg-gray-900/40 dark:border-gray-700"
+                                    aria-busy={isLoading}
+                                >
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={inputText}
+                                            onChange={(event) => setInputText(event.target.value)}
+                                            onKeyDown={handleKeyPress}
+                                            placeholder="Ask any question about your documents..."
+                                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600/60 focus:border-transparent text-gray-800 dark:text-gray-100 dark:bg-gray-900 dark:border-gray-700"
+                                            disabled={isLoading}
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={!inputText.trim() || isLoading}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/60 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            <Send className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                         <div
                             onMouseDown={handleDividerMouseDown}
@@ -479,90 +607,90 @@ export default function Home() {
                             >
                                 Create Knowledge Base
                             </h2>
-            <form
-                onSubmit={handleIngestionSubmit}
-                className="w-full p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm space-y-4"
-                aria-busy={isIngesting}
-            >
-                {ingestMode === 'url' ? (
-                    <input
-                        type="url"
-                        value={ingestUrl}
-                        onChange={(event) => setIngestUrl(event.target.value)}
-                        placeholder="Enter website url to ingest"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent text-gray-900 dark:text-gray-100"
-                    />
-                ) : (
-                    <div className="relative">
-                        <input
-                            key={fileInputKey}
-                            type="file"
-                            onChange={handleFileChange}
-                            accept=".md,.markdown,.txt,.pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.html,.htm,.mp3,.wav,.m4a,.flac"
-                            className="w-full rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 file:mr-4 file:rounded-l-md file:rounded-r-none file:border-0 file:border-r file:border-slate-300 dark:file:border-slate-600 file:bg-slate-200 dark:file:bg-slate-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-800 dark:file:text-slate-100"
-                        />
-                        {fileValidationError && (
-                            <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 shadow-sm dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
-                                {fileValidationError}
-                            </div>
-                        )}
-                    </div>
-                )}
-                <div className="flex flex-wrap items-center gap-3">
-                    <button
-                        type="button"
-                        disabled={isIngesting}
-                        onClick={handleIngestButtonClick('url', handleUrlIngestion)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        {isIngesting && ingestMode === 'url' && (
-                            <span
-                                className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin"
-                                aria-hidden="true"
-                            />
-                        )}
-                        {isIngesting && ingestMode === 'url' ? 'Ingesting data...' : 'Ingest url'}
-                    </button>
-                    <button
-                        type="button"
-                        disabled={isIngesting}
-                        onClick={handleIngestButtonClick('file', handleFileIngestion)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        {isIngesting && ingestMode === 'file' && (
-                            <span
-                                className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin"
-                                aria-hidden="true"
-                            />
-                        )}
-                        {isIngesting && ingestMode === 'file' ? 'Ingesting data...' : 'Ingest File'}
-                    </button>
-                </div>
-                {ingestionError && (
-                    <div className="text-sm text-red-600 dark:text-red-400">
-                        {ingestionError}
-                    </div>
-                )}
-                {ingestion_response && (
-                    <div className="text-gray-900 dark:text-gray-100">
-                        <Markdown>{ingestion_response}</Markdown>
-                    </div>
-                )}
-                {ingestMode === 'file' && (
-                    <label
-                        className="mt-2 flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100"
-                        style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
-                    >
-                        <input
-                            type="checkbox"
-                            checked={isImageEnabled}
-                            onChange={(event) => setIsImageEnabled(event.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
-                        />
-                        Enable image recognition for pdf files
-                    </label>
-                )}
-            </form>
+                            <form
+                                onSubmit={handleIngestionSubmit}
+                                className="w-full p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm space-y-4"
+                                aria-busy={isIngesting}
+                            >
+                                {ingestMode === 'url' ? (
+                                    <input
+                                        type="url"
+                                        value={ingestUrl}
+                                        onChange={(event) => setIngestUrl(event.target.value)}
+                                        placeholder="Enter website url to ingest"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent text-gray-900 dark:text-gray-100"
+                                    />
+                                ) : (
+                                    <div className="relative">
+                                        <input
+                                            key={fileInputKey}
+                                            type="file"
+                                            onChange={handleFileChange}
+                                            accept=".md,.markdown,.txt,.pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.html,.htm,.mp3,.wav,.m4a,.flac"
+                                            className="w-full rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 file:mr-4 file:rounded-l-md file:rounded-r-none file:border-0 file:border-r file:border-slate-300 dark:file:border-slate-600 file:bg-slate-200 dark:file:bg-slate-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-800 dark:file:text-slate-100"
+                                        />
+                                        {fileValidationError && (
+                                            <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 shadow-sm dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
+                                                {fileValidationError}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <button
+                                        type="button"
+                                        disabled={isIngesting}
+                                        onClick={handleIngestButtonClick('url', handleUrlIngestion)}
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        {isIngesting && ingestMode === 'url' && (
+                                            <span
+                                                className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin"
+                                                aria-hidden="true"
+                                            />
+                                        )}
+                                        {isIngesting && ingestMode === 'url' ? 'Ingesting data...' : 'Ingest url'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={isIngesting}
+                                        onClick={handleIngestButtonClick('file', handleFileIngestion)}
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        {isIngesting && ingestMode === 'file' && (
+                                            <span
+                                                className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin"
+                                                aria-hidden="true"
+                                            />
+                                        )}
+                                        {isIngesting && ingestMode === 'file' ? 'Ingesting data...' : 'Ingest File'}
+                                    </button>
+                                </div>
+                                {ingestionError && (
+                                    <div className="text-sm text-red-600 dark:text-red-400">
+                                        {ingestionError}
+                                    </div>
+                                )}
+                                {ingestion_response && (
+                                    <div className="text-gray-900 dark:text-gray-100">
+                                        <Markdown>{ingestion_response}</Markdown>
+                                    </div>
+                                )}
+                                {ingestMode === 'file' && (
+                                    <label
+                                        className="mt-2 flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100"
+                                        style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={isImageEnabled}
+                                            onChange={(event) => setIsImageEnabled(event.target.checked)}
+                                            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
+                                        />
+                                        Enable image recognition for pdf files
+                                    </label>
+                                )}
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -590,3 +718,4 @@ export default function Home() {
         </main>
     );
 }
+
