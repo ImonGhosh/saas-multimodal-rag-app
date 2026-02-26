@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { SignInButton, SignedIn, SignedOut, UserButton, useAuth } from '@clerk/nextjs';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from "remark-gfm";
@@ -60,6 +60,9 @@ export default function Home() {
     const [isIngesting, setIsIngesting] = useState<boolean>(false);
     const [fileInputKey, setFileInputKey] = useState<number>(0);
     const [isImageEnabled, setIsImageEnabled] = useState<boolean>(false);
+    const [splitPercent, setSplitPercent] = useState<number>(70);
+    const splitContainerRef = useRef<HTMLDivElement | null>(null);
+    const isDraggingSplitRef = useRef<boolean>(false);
 
     const maxFileSizeBytes = 5 * 1024 * 1024;
     const allowedExtensions = new Set([
@@ -80,6 +83,8 @@ export default function Home() {
         'm4a',
         'flac',
     ]);
+    const minSplitPercent = 25;
+    const maxSplitPercent = 75;
 
     const wallpaperDark: CSSProperties = {
         backgroundColor: '#0f172a',
@@ -90,6 +95,48 @@ export default function Home() {
             'radial-gradient(900px 600px at 55% 110%, rgba(148,163,184,0.18), transparent 60%)',
         ].join(', '),
         backgroundSize: 'cover',
+    };
+    const splitStyle = {
+        ['--left-panel' as string]: `${splitPercent}%`,
+        ['--right-panel' as string]: `${100 - splitPercent}%`,
+    } as CSSProperties;
+
+    const updateSplitPercent = (clientX: number) => {
+        if (!splitContainerRef.current) return;
+        const rect = splitContainerRef.current.getBoundingClientRect();
+        const rawPercent = ((clientX - rect.left) / rect.width) * 100;
+        const clamped = Math.min(maxSplitPercent, Math.max(minSplitPercent, rawPercent));
+        setSplitPercent(clamped);
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (event: MouseEvent) => {
+            if (!isDraggingSplitRef.current) return;
+            updateSplitPercent(event.clientX);
+        };
+
+        const handleMouseUp = () => {
+            if (!isDraggingSplitRef.current) return;
+            isDraggingSplitRef.current = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, []);
+
+    const handleDividerMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        isDraggingSplitRef.current = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        updateSplitPercent(event.clientX);
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -305,7 +352,7 @@ export default function Home() {
     };
 
     return (
-        <main className="relative min-h-screen overflow-hidden px-6 pt-24 pb-10 font-sans flex flex-col items-center justify-center gap-6 text-slate-100">
+        <main className="relative min-h-screen overflow-hidden px-6 pt-20 pb-6 font-sans flex flex-col items-center justify-start gap-5 text-slate-100">
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
                 <div className="absolute inset-0" style={wallpaperDark} />
             </div>
@@ -323,26 +370,67 @@ export default function Home() {
                     </SignedIn>
                 </div>
             </nav>
-            <h1
-                className="text-3xl font-bold text-center text-slate-100"
-                style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
-            >
-                Personal RAG Agent
-            </h1>
             <SignedOut>
-                <div className="w-full max-w-2xl flex items-center justify-center">
-                    <SignInButton mode="modal">
-                        <button className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm">
-                            Try it out for free
-                        </button>
-                    </SignInButton>
+                <div className="w-full flex-1 flex flex-col items-center justify-center text-center gap-6">
+                    <h1
+                        className="text-5xl font-bold tracking-tight text-slate-100 sm:text-6xl"
+                        style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
+                    >
+                        Personal RAG Agent
+                    </h1>
+                    <div className="w-full max-w-xl flex items-center justify-center">
+                        <SignInButton mode="modal">
+                            <button className="inline-flex items-center gap-2 px-8 py-4 rounded-md bg-blue-600 text-lg text-white hover:bg-blue-700 shadow-sm">
+                                Try it out for free
+                            </button>
+                        </SignInButton>
+                    </div>
+                    <section className="w-full max-w-2xl pt-4 text-center">
+                        <p
+                            className="text-lg text-slate-300"
+                            style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
+                        >
+                            Turn any website or document into expert knowledge and chat with it using natural language.
+                        </p>
+
+                        <div
+                            className="mt-6 text-base text-slate-400"
+                            style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
+                        >
+                            <span>
+                                &copy; {new Date().getFullYear()} Personal RAG Agent
+                            </span>
+                            <span className="ml-2">
+                                All rights reserved.
+                            </span>
+                        </div>
+                    </section>
                 </div>
             </SignedOut>
 
             <SignedIn>
+                <h1
+                    className="text-3xl font-bold text-center text-slate-100"
+                    style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
+                >
+                    Personal RAG Agent
+                </h1>
+                <div className="w-full max-w-none">
+                    <div
+                        ref={splitContainerRef}
+                        style={splitStyle}
+                        className="flex w-full min-h-[60vh] flex-col gap-6 lg:flex-row lg:gap-0 lg:rounded-2xl lg:border lg:border-white/10 lg:bg-white/5 lg:backdrop-blur"
+                    >
+                        <div className="w-full lg:flex-none lg:basis-[var(--left-panel)] lg:px-6 lg:py-6">
+                            <h2
+                                className="mb-4 text-xl font-semibold text-slate-100"
+                                style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
+                            >
+                                Start conversation with your RAG agent
+                            </h2>
             <form
                 onSubmit={handleSubmit}
-                className="w-full max-w-2xl p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm space-y-4"
+                className="w-full p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm space-y-4"
                 aria-busy={isLoading}
             >
                 <input
@@ -371,10 +459,29 @@ export default function Home() {
                     </div>
                 )}
             </form>
-
+                        </div>
+                        <div
+                            onMouseDown={handleDividerMouseDown}
+                            role="separator"
+                            aria-orientation="vertical"
+                            aria-valuenow={Math.round(splitPercent)}
+                            aria-valuemin={minSplitPercent}
+                            aria-valuemax={maxSplitPercent}
+                            className="group hidden w-4 cursor-col-resize items-stretch justify-center lg:flex"
+                            title="Drag to resize"
+                        >
+                            <div className="my-6 w-px rounded-full bg-white/20 transition-colors group-hover:bg-white/60" />
+                        </div>
+                        <div className="w-full lg:flex-none lg:basis-[var(--right-panel)] lg:px-6 lg:py-6">
+                            <h2
+                                className="mb-4 text-xl font-semibold text-slate-100"
+                                style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
+                            >
+                                Create Knowledge Base
+                            </h2>
             <form
                 onSubmit={handleIngestionSubmit}
-                className="w-full max-w-2xl p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm space-y-4"
+                className="w-full p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm space-y-4"
                 aria-busy={isIngesting}
             >
                 {ingestMode === 'url' ? (
@@ -452,32 +559,34 @@ export default function Home() {
                             onChange={(event) => setIsImageEnabled(event.target.checked)}
                             className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
                         />
-                        Enable image extraction for pdf files (This will increase the ingestion time)
+                        Enable image recognition for pdf files
                     </label>
                 )}
             </form>
-            </SignedIn>
-
-            <section className="w-full max-w-2xl text-center">
-                <p
-                    className="text-base text-slate-300"
-                    style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
-                >
-                    Turn any website or document into expert knowledge and chat with it using natural language.
-                </p>
-
-                <div
-                    className="mt-6 text-xs text-slate-400"
-                    style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
-                >
-                    <span>
-                        &copy; {new Date().getFullYear()} Personal RAG Agent
-                    </span>
-                    <span className="ml-2">
-                        All rights reserved.
-                    </span>
+                        </div>
+                    </div>
                 </div>
-            </section>
+                <section className="w-full max-w-2xl pt-2 text-center">
+                    <p
+                        className="text-base text-slate-300"
+                        style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
+                    >
+                        Turn any website or document into expert knowledge and chat with it using natural language.
+                    </p>
+
+                    <div
+                        className="mt-6 text-xs text-slate-400"
+                        style={{ fontFamily: "'Comic Sans MS', 'Comic Neue', cursive" }}
+                    >
+                        <span>
+                            &copy; {new Date().getFullYear()} Personal RAG Agent
+                        </span>
+                        <span className="ml-2">
+                            All rights reserved.
+                        </span>
+                    </div>
+                </section>
+            </SignedIn>
         </main>
     );
 }

@@ -1,1 +1,17 @@
 saas-rag-app/my_venv/
+saas-rag-app/.venv/
+saas-rag-app/.env
+saas-rag-app-docker/.env
+
+# Cache folders
+**/__pycache__/
+**/.cache/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.parcel-cache/
+**/.next/
+**/.turbo/
+**/node_modules/.cache/
+**/cache/
+**/*.pyc
