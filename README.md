@@ -5,7 +5,7 @@ A Multimodal RAG application, allowing users to ingest URLs and personal documen
 End-to-end GenAI application with:
 - FastAPI backend + Next.js frontend
 - URL and file ingestion into structured knowledge
-- Agentic RAG with tool-calling over pgvector
+- Agentic RAG with session memory and tool-calling over pgvector
 - Clerk authentication
 - Langfuse tracing + cost/latency monitoring
 - DeepEval-based RAG evaluation
@@ -62,6 +62,7 @@ Evaluation: DeepEval retrieval + generation metrics
 - **Evaluation**: DeepEval
 - **Containerization**: Docker multi-stage build, docker-compose
 - **Deployment**: Amazon ECR + AWS App Runner
+- **Agent Memory**: Amazon S3 (short-term session memory)
 
 ## Core Features
 
@@ -108,8 +109,13 @@ Retrieval behavior:
 - Agent is instructed to start with semantic search
 - It can pivot to title/content tools when full-document context is needed
 - Final answer is returned in markdown-friendly text
+  
+### 3) Agent Memory
 
-### 3) Authentication
+- Short-term session memory is persisted in an Amazon S3 bucket
+- Enables context-rich multi-turn conversations across requests and sessions
+
+### 4) Authentication
 
 - Clerk secures key backend routes with Bearer token auth:
 - `POST /api`
