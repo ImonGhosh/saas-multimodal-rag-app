@@ -13,11 +13,17 @@ from openai import AsyncOpenAI
 
 from dotenv import load_dotenv
 from pathlib import Path
+from typing import Optional, List, Dict
+from datetime import datetime
+import json
 import os
 import asyncio
 from uuid import uuid4
 import logging
 from fastapi.middleware.cors import CORSMiddleware
+import boto3
+from botocore.exceptions import ClientError
+from pydantic_ai.messages import ModelRequest, ModelResponse, TextPart
 
 # from . import rag_agent_web
 from . import rag_agent
@@ -54,6 +60,13 @@ _INGEST_JOBS: dict[str, dict[str, object]] = {}
 _INGEST_LOCK = asyncio.Lock()
 logger = logging.getLogger(__name__)
 
+USE_S3 = os.getenv("USE_S3", "false").lower() == "true"
+S3_BUCKET = os.getenv("S3_BUCKET", "")
+MEMORY_DIR = Path(os.getenv("MEMORY_DIR", str(ROOT_DIR / "memory")))
+
+if USE_S3:
+    s3_client = boto3.client("s3")
+
 
 def _extract_tool_names(messages) -> list[str]:
     try:
@@ -80,6 +93,44 @@ def _unique_preserve_order(items: list[str]) -> list[str]:
     return unique_items
 
 
+def _get_memory_key(session_id: str) -> str:
+    safe_id = Path(session_id).name
+    if safe_id.endswith(".json"):
+        return safe_id
+    return f"{safe_id}.json"
+
+
+def _load_conversation(session_id: str) -> List[Dict[str, str]]:
+    if USE_S3:
+        try:
+            response = s3_client.get_object(Bucket=S3_BUCKET, Key=_get_memory_key(session_id))
+            return json.loads(response["Body"].read().decode("utf-8"))
+        except ClientError as err:
+            if err.response.get("Error", {}).get("Code") == "NoSuchKey":
+                return []
+            raise
+    file_path = MEMORY_DIR / _get_memory_key(session_id)
+    if file_path.exists():
+        with file_path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+
+def _save_conversation(session_id: str, messages: List[Dict[str, str]]) -> None:
+    if USE_S3:
+        s3_client.put_object(
+            Bucket=S3_BUCKET,
+            Key=_get_memory_key(session_id),
+            Body=json.dumps(messages, indent=2),
+            ContentType="application/json",
+        )
+        return
+    MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+    file_path = MEMORY_DIR / _get_memory_key(session_id)
+    with file_path.open("w", encoding="utf-8") as f:
+        json.dump(messages, f, indent=2)
+
+
 async def _run_ingest_file_job(job_id: str) -> None:
     job = _INGEST_JOBS.get(job_id)
     if job is None:
@@ -103,8 +154,14 @@ async def _run_ingest_file_job(job_id: str) -> None:
         job["error"] = str(err)
 
 
-class IdeaRequest(BaseModel):
-    text: str
+class ChatRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
+
+class ChatResponse(BaseModel):
+    response: str
+    session_id: str
 
 
 class IngestRequest(BaseModel):
@@ -140,23 +197,35 @@ app.add_middleware(
     allow_headers=["*"],      # IMPORTANT for JSON requests (Content-Type)
 )
 
-@app.post("/api", response_class=PlainTextResponse)
+@app.post("/api", response_model=ChatResponse)
 async def idea(
-    payload: IdeaRequest,
+    payload: ChatRequest,
     creds: HTTPAuthorizationCredentials = Depends(clerk_guard),
 ):
+    session_id = payload.session_id or uuid4().hex
+    conversation = _load_conversation(session_id)
+    message_history: list[object] = []
+    for msg in conversation[-10:]:
+        role = msg.get("role")
+        content = msg.get("content", "")
+        if not content:
+            continue
+        if role == "user":
+            message_history.append(ModelRequest.user_text_prompt(content))
+        elif role == "assistant":
+            message_history.append(ModelResponse(parts=[TextPart(content)]))
 
     request_id = uuid4().hex
     trace_ctx = start_trace(
         name="rag.query",
         session_id=request_id,
-        input=text_payload(payload.text, store=store_prompts()),
-        metadata={"endpoint": "/api", "request_id": request_id},
+        input=text_payload(payload.message, store=store_prompts()),
+        metadata={"endpoint": "/api", "request_id": request_id, "session_id": session_id},
         tags=["fastapi", "rag"],
     )
 
     try:
-        response = await rag_agent.agent.run(payload.text)
+        response = await rag_agent.agent.run(payload.message, message_history=message_history)
 
         try:
             tool_names = _unique_preserve_order(_extract_tool_names(response.new_messages()))
@@ -179,12 +248,24 @@ async def idea(
             if output_text is None:
                 output_text = str(response)
 
+        conversation.append(
+            {"role": "user", "content": payload.message, "timestamp": datetime.utcnow().isoformat()}
+        )
+        conversation.append(
+            {
+                "role": "assistant",
+                "content": output_text,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
+        _save_conversation(session_id, conversation)
+
         end_trace(
             trace_ctx,
             output=text_payload(output_text, store=store_responses()),
             metadata={"tools_used": tool_names},
         )
-        return output_text
+        return ChatResponse(response=output_text, session_id=session_id)
     except Exception as err:
         end_trace(trace_ctx, error=err)
         raise

@@ -68,6 +68,7 @@ export default function Home() {
     const [isIngesting, setIsIngesting] = useState<boolean>(false);
     const [fileInputKey, setFileInputKey] = useState<number>(0);
     const [isImageEnabled, setIsImageEnabled] = useState<boolean>(false);
+    const [sessionId, setSessionId] = useState<string>('');
     const [splitPercent, setSplitPercent] = useState<number>(70);
     const splitContainerRef = useRef<HTMLDivElement | null>(null);
     const isDraggingSplitRef = useRef<boolean>(false);
@@ -190,16 +191,26 @@ export default function Home() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${jwt}`,
                 },
-                body: JSON.stringify({ text: trimmed }),
+                body: JSON.stringify({
+                    message: trimmed,
+                    session_id: sessionId || undefined,
+                }),
             });
 
-            const text = await res.text();
-            if (!res.ok) throw new Error(text || `Request failed (${res.status})`);
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || `Request failed (${res.status})`);
+            }
+
+            const data = (await res.json()) as { response?: string; session_id?: string };
+            if (!sessionId && data.session_id) {
+                setSessionId(data.session_id);
+            }
 
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: text,
+                content: data.response ?? '',
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, assistantMessage]);

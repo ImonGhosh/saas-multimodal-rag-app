@@ -1,0 +1,12 @@
+[
+  {
+    "role": "user",
+    "content": "What are geostationary satellite mosaics ?",
+    "timestamp": "2026-02-26T22:36:27.931231"
+  },
+  {
+    "role": "assistant",
+    "content": "Geostationary satellite mosaics refer to images or data collected by satellites that are placed in geostationary orbit, meaning they remain fixed over a specific point on the Earth's surface. This capability allows for continuous monitoring and collection of data, particularly useful in meteorology and environmental studies. \n\nIn the context of satellite-based precipitation nowcasting, for example, data from multiple geostationary satellites can be fused to create a comprehensive mosaic that covers a vast area, providing near-real-time updates necessary for predicting weather events. These mosaics are typically generated every 30 minutes, reflecting conditions with minimal latency.\n\nSuch mosaics are essential for applications that require a high frequency of updates, enabling better forecasting and response measures in weather-related scenarios, especially in flood-prone regions (source: *Satellite-Based Precipitation Nowcasting with Deep Learning*). They play a crucial role in understanding and responding to rapidly evolving weather patterns.",
+    "timestamp": "2026-02-26T22:36:27.931231"
+  }
+]
