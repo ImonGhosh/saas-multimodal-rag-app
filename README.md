@@ -11,7 +11,7 @@ End-to-end GenAI application with:
 - DeepEval-based RAG evaluation
 - Containerization and AWS Deployment
 
-Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/
+Live AWS deployment: https://m6hkuhagcc.eu-west-1.awsapprunner.com/ (Currently inactive for cost-saving)
 
 ## User Interface
 
