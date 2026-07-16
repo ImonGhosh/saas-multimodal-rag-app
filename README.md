@@ -227,7 +227,7 @@ npm run dev
 
 ### 4) Access
 - Frontend: `http://localhost:3000`
-- Backend: `http://localhost:8000`
+- Backend: `http://localhost:8000/docs`
 
 Note: frontend routes `/api`, `/ingest`, and `/ingest-file/*` are proxied to `http://127.0.0.1:8000` via `next.config.ts`.
 
